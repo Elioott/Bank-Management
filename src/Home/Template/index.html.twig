@@ -4,6 +4,7 @@
 		{% block title %}Accueil
 		{% endblock %}
 	</title>
+	<script src="https://cdn.tailwindcss.com"></script>
 	<style>
 		body {
 			font-family: Arial, sans-serif;
@@ -11,14 +12,14 @@
 			padding: 0;
 			background-color: #f4f4f4;
 		}
-
+		/*
 		.homepage {
 			position: relative;
 			min-height: 100vh;
 			background-color: #fff;
 			overflow: hidden;
 		}
-
+		
 		.background-video {
 			position: absolute;
 			top: 0;
@@ -27,22 +28,22 @@
 			height: 100%;
 			object-fit: cover;
 			z-index: -1;
-		}
+		} */
 
 		.welcome-section {
 			text-align: center;
-			padding: 100px 20px;
+			padding: 10px 20px;
 			color: white;
-			background-color: rgba(0, 0, 0, 0.5);
+			background-color: rgba(6, 131, 26, 0.5);
 		}
 
 		.cta-buttons {
-			margin-top: 20px;
+			margin-top: 5px;
 		}
 
 		.cta-buttons .btn {
 			display: inline-block;
-			background-color: #00aaff;
+			background-color:rgba(111, 245, 140, 0.5) ;
 			color: white;
 			padding: 10px 20px;
 			border-radius: 5px;
@@ -52,39 +53,67 @@
 		}
 
 		.cta-buttons .btn:hover {
-			background-color: #0077cc;
+			background-color:rgb(12, 199, 105);
+			scale: 105%;
 		}
+.features {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 30px;
+}
 
-		.features-section {
-			background-color: #fff;
-			padding: 50px 20px;
-			text-align: center;
-		}
+.feature-card {
+    width: calc(25% - 30px);
+    perspective: 1000px;
+}
 
-		.features h2 {
-			font-size: 2rem;
-			margin-bottom: 30px;
-		}
+.card-inner {
+    position: relative;
+    width: 80%;
+    padding-top: 100%; /* carré */
+    transform-style: preserve-3d;
+    transition: transform 0.8s;
+}
 
-		.features {
-			display: flex;
-			justify-content: space-around;
-			flex-wrap: wrap;
-		}
+.feature-card:hover .card-inner {
+    transform: rotateY(180deg);
+}
 
-		.feature {
-			width: 30%;
-			padding: 20px;
-			margin: 10px;
-			background-color: #f9f9f9;
-			border-radius: 5px;
-			text-align: center;
-		}
+.card-front, .card-back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 90%;
+    height: 90%;
+    border-radius: 10px;
+    backface-visibility: hidden; /*
+    background: linear-gradient(180deg, #b6b6b6 0%, #cfd3f2 100%); */
+	background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+    box-shadow: 1px 6px 8px rgba(0, 0, 0, 0.1);
+}
 
-		.feature img {
-			max-width: 100px;
-			margin-bottom: 20px;
-		}
+.card-front img {
+    width: 60px;
+    margin-bottom: 15px;
+}
+
+.card-front h3 {
+    font-size: 1.2rem; 
+    color: #2c3e50;
+}
+
+.card-back {
+    transform: rotateY(180deg);
+    font-size: 1rem;
+    color: #333;
+    background-color: #ffffff;
+}
 
 		.testimonials-section {
 			background-color: #f1f1f1;
@@ -120,41 +149,87 @@
 
 {% block body %}
 	<div class="homepage">
+	<!--
 		<video autoplay loop muted playsinline class="background-video">
 			<source src="{{ asset('videos/light-background.mp4') }}" type="video/mp4">
 			Your browser does not support the video tag.
-		</video>
+		</video> -->
 
-		<header class="welcome-section">
-			<h1>Bienvenue sur votre banque en ligne</h1>
-			<p>Gérez vos finances en toute simplicité, rapidité et sécurité.</p>
+		<header class="welcome-section mb-60">
+			<div>
+			</div>
 			<div class="cta-buttons">
-				<a href="{{ path('login') }}" class="btn">Se connecter</a>
-				<a href="{{ path('register_customer') }}" class="btn btn-alt">Créer un compte Client</a>
-				<a href="{{ path('register_admin') }}" class="btn btn-alt">Créer un compte Admin</a>
+				<a href="{{ path('login') }}" class="btn shadow-md">Se connecter</a>
+				<a href="{{ path('register_customer') }}" class="btn btn-alt shadow-md">Devenir Client</a>
+				<a href="{{ path('register_admin') }}" class="btn btn-alt shadow-md">Créer un compte Admin</a>
 			</div>
 		</header>
 
-		<section class="features-section">
-			<h2>Nos Services</h2>
-			<div class="features">
-				<div class="feature">
-					<img src="{{ asset('images/transfer.svg') }}" alt="Virements">
-					<h3>Virements rapides</h3>
-					<p>Envoyez et recevez de l'argent instantanément.</p>
-				</div>
-				<div class="feature">
-					<img src="{{ asset('images/savings.svg') }}" alt="Épargne">
-					<h3>Comptes d'épargne</h3>
-					<p>Boostez vos économies avec nos taux compétitifs.</p>
-				</div>
-				<div class="feature">
-					<img src="{{ asset('images/support.svg') }}" alt="Support">
-					<h3>Assistance 24/7</h3>
-					<p>Notre équipe est disponible pour vous aider à tout moment.</p>
-				</div>
+		<section>
+			<div class="text-left w-full md:w-1/2 flex flex-col items-start justify-center">
+				<h1>Les efforts finissent toujours par payer</h1>
+				<p>Lorem fjfnrefeofefef referf</p>
+				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+
+				<a href="{{ path('register_customer') }}" class="btn btn-alt">Devenir Client dès maintenant</a>
+			</div>
+			<div class="w-full md:w-1/2 flex justify-center md:justify-end">
+				<img src="{{ asset('images/.svg') }}" alt="imageaccueil">
 			</div>
 		</section>
+
+	<section class="features-section bg-green-300 mt-10">
+	<div class="flex justify-center">
+    <h2 class="text-4xl font-semibold mt-20 mb-20">Pourquoi Choisir notre Banque ?</h2>
+	</div>
+    <div class="features">
+        <div class="feature-card ml-7">
+            <div class="card-inner">
+                <div class="card-front shadow-lg">
+                    <img src="{{ asset('images/transfer.svg') }}" alt="Virements" class="h-16 w-16">
+                    <h3>Virements rapides</h3>
+                </div>
+                <div class="card-back" >
+                    <p>Envoyez et recevez de l'argent instantanément.</p>
+                </div>
+            </div>
+        </div>
+        <div class="feature-card">
+            <div class="card-inner">
+                <div class="card-front">
+                    <img src="{{ asset('images/savings.svg') }}" alt="Épargne" class="h-16 w-16">
+                    <h3>Comptes épargne</h3>
+                </div>
+                <div class="card-back">
+                    <p>Boostez vos économies avec nos taux compétitifs.</p>
+                </div>
+            </div>
+        </div>
+        <div class="feature-card">
+            <div class="card-inner">
+                <div class="card-front">
+                    <img src="{{ asset('images/support.svg') }}" alt="Support" class="h-16 w-16">
+                    <h3>Assistance 24/7</h3>
+                </div>
+                <div class="card-back">
+                    <p>Notre équipe est disponible pour vous aider à tout moment.</p>
+                </div>
+            </div>
+        </div>
+        <div class="feature-card mb-40">
+            <div class="card-inner">
+                <div class="card-front">
+                    <img src="{{ asset('images/support.svg') }}" alt="Sécurité" class="h-16 w-16">
+                    <h3>Sécurité optimale</h3>
+                </div>
+                <div class="card-back">
+                    <p>Vos données et transactions sont protégées à 100%.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 
 		<section class="testimonials-section">
 			<h2>Ce que disent nos clients</h2>
