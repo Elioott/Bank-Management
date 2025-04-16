@@ -42,4 +42,15 @@ class TransactionRepository extends ServiceEntityRepository
 
         return (float) $qb->getQuery()->getSingleScalarResult();
     }
+
+    public function findByAccount($accountId): array
+    {
+        return $this->createQueryBuilder('t')
+            ->where('t.source_account = :accountId')
+            ->orWhere('t.destination_account = :accountId')
+            ->setParameter('accountId', $accountId)
+            ->orderBy('t.date_time', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

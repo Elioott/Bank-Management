@@ -1,8 +1,10 @@
 <?php
 
 namespace App\Transactions\Controller;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
+use App\Transactions\DTO\TransactionRequest;
+use App\Transactions\Service\TransactionManager;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use App\Account\Repository\AccountRepository;
 use App\Beneficiary\Entity\Beneficiary;
 use App\Transactions\Entity\Transaction;
@@ -22,67 +24,46 @@ final class TransferController extends AbstractController
     #[Route('/transfer', name: 'transfer')]
     #[IsGranted('ROLE_CUSTOMER')] 
     public function MakeTransfer(
-        Request $request,
-        AccountRepository $bankAccountRepository,
-        TransactionService $transactionService, 
+        Request                $request,
+        AccountRepository      $accountRepository,
+        TransactionManager     $transactionManager,
         EntityManagerInterface $entityManager,
-        SessionInterface $session,
-
+        SessionInterface       $session,
     ): Response {
+
         $user = $this->getUser();
         $bankAccountId = $session->get('bank_account_id');
+        $userAccounts = $accountRepository->findBy(['owner' => $user]);
+        $userBeneficiaries = $entityManager->getRepository(Beneficiary::class)->findBy(['member' => $user]);
 
-        $bankAccounts = $bankAccountRepository->findBy(['owner' => $user]);
-
-        $beneficiaries = $entityManager->getRepository(Beneficiary::class)->findBy(['member' => $user]);
-
-        $transaction = new Transaction();
-
-        $form = $this->createForm(TransferForm::class, $transaction, [
+        $form = $this->createForm(TransferForm::class, new Transaction(), [
             'user' => $user,
-            'bank_accounts' => $bankAccounts,
-            'beneficiaries' => $beneficiaries,
+            'bank_accounts' => $userAccounts,
+            'beneficiaries' => $userBeneficiaries,
         ]);
 
         $form->handleRequest($request);
-        $sourceAccount =$bankAccountRepository->find($bankAccountId) ;
+        $sourceAccount =$accountRepository->find($bankAccountId) ;
 
         if ($form->isSubmitted() && $form->isValid()) {
             $destinationAccountNumber = $form->get('destination_account_number')->getData()->getBankAccountNumber();
+            $destinationAccount = $accountRepository->findOneBy(['account_number' => $destinationAccountNumber]);
             $amount = $form->get('amount')->getData();
-
-            if (!$sourceAccount->canWithdraw($amount)) {
-                throw $this->createAccessDeniedException('Withdrawal denied, insufficient funds or limit exceeded.');
-            }
         
-            if ($sourceAccount === null) {
-                throw $this->createNotFoundException('Source account not found.');
+            $requestDTO = new TransactionRequest(
+                $amount,
+                $user,
+                $sourceAccount,
+                $destinationAccount,
+                TransactionType::TRANSFER
+            );
+
+            try {
+                $transactionManager->handle($requestDTO);
+                $this->addFlash('success', 'Transaction effectuée avec succès.');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Erreur lors de la transaction : ' . $e->getMessage());
             }
-
-            $destinationAccount = $bankAccountRepository->findOneBy(['account_number' => $destinationAccountNumber]);
-
-            if ($destinationAccount === null) {
-                throw $this->createNotFoundException('Destination account not found.');
-            }
-
-            if ($sourceAccount->getOwner() !== $user) {
-                throw $this->createAccessDeniedException('You do not own the source account.');
-            }
-
-            if (!$sourceAccount->isActive()) {
-                throw new AccessDeniedException('Le compte source est inactif. Transaction refusée.');
-            }
-
-            if (!$destinationAccount->isActive()) {
-                throw new AccessDeniedException('Le compte destination est inactif. Transaction refusée.');
-            }
-
-            if (!$destinationAccount->canDeposit($amount)) {
-                $transactionService->createFailedTransaction($amount, $sourceAccount, $destinationAccount, TransactionType::TRANSFER, $entityManager);
-                throw $this->createAccessDeniedException('Transfer denied: the savings account has exceeded its deposit limit of 25,000.');
-            }
-
-            $transactionService->processTransaction($amount, $sourceAccount, $destinationAccount, TransactionType::TRANSFER);
 
             return $this->redirectToRoute('account', [
                 'accountId' => $sourceAccount->getId(),

@@ -3,9 +3,11 @@
 namespace App\Transactions\Controller;
 
 use App\Account\Repository\AccountRepository;
+use App\Transactions\DTO\TransactionRequest;
 use App\Transactions\Entity\Transaction;
 use App\Transactions\Enum\TransactionType;
 use App\Transactions\Form\DepositForm;
+use App\Transactions\Service\TransactionManager;
 use App\Transactions\Service\TransactionService;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,49 +23,36 @@ final class DepositController extends AbstractController {
     #[IsGranted('ROLE_CUSTOMER')]
     public function MakeDeposit(
         Request                $request,
-        SessionInterface $session,
-        TransactionService     $transactionService,
+        SessionInterface       $session,
+        TransactionManager     $transactionManager,
         AccountRepository      $accountRepository
-
     ): Response {
-    $user = $this->getUser();
 
-    $bankAccountId = $session->get('bank_account_id');
-    $bankAccount = $accountRepository->find($bankAccountId);
+        $bankAccountId = $session->get('bank_account_id');
+        $bankAccount = $accountRepository->find($bankAccountId);
 
-    if (!$bankAccountId) {
-        throw $this->createAccessDeniedException('No bank account selected in the session.');
-    }
-    
-    
-    if (!$bankAccount) {
-        throw $this->createAccessDeniedException('Bank account not found.');
-    }
-
-    if ($bankAccount->getOwner() !== $user) {
-        throw $this->createAccessDeniedException('You do not own this account.');
-    }
-
-    if (!$bankAccount->isActive()) {
-        throw new AccessDeniedException('Le compte source est inactif. Transaction refusée.');
-    }
-
-    $transaction = new Transaction();
-    $transaction->setSourceAccount($bankAccount); 
-    $form = $this->createForm(DepositForm::class, $transaction);
+    $form = $this->createForm(DepositForm::class, new Transaction());
 
     $form->handleRequest($request);
 
     if ($form->isSubmitted() && $form->isValid()) {
+        $user = $this->getUser();
         $amount = $form->get('amount')->getData();
-      
-        if (!$bankAccount->canDeposit($amount)) {
-            throw $this->createAccessDeniedException('Deposit denied, the deposit limit is 25,000.');
+
+        $requestDTO = new TransactionRequest(
+            $amount,
+            $user,
+            null,
+            $bankAccount,
+            TransactionType::DEPOSIT
+        );
+
+        try {
+            $transactionManager->handle($requestDTO);
+            $this->addFlash('success', 'Transaction effectuée avec succès.');
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Erreur lors de la transaction : ' . $e->getMessage());
         }
-       
-
-        $transactionService->processTransaction($amount, $bankAccount, $bankAccount, TransactionType::DEPOSIT);
-
         return $this->redirectToRoute('account', [
             'accountId' => $bankAccount->getId(),
         ]);

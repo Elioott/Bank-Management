@@ -10,18 +10,15 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class TransferForm extends AbstractType
-{
-    public function buildForm(FormBuilderInterface $builder, array $options): void
-    {
+class TransferForm extends AbstractType {
+    public function buildForm(FormBuilderInterface $builder, array $options): void {
         $builder
-          
             ->add('destination_account_number', ChoiceType::class, [
-                'choices' => $options['beneficiaries'], 
+                'choices' => $options['beneficiaries'],
                 'choice_label' => function ($beneficiary) {
                     return $beneficiary->getName() . ' - ' . $beneficiary->getBankAccountNumber();
                 },
-                'mapped' => false, 
+                'mapped' => false,
                 'label' => 'Compte destinataire',
             ])
             ->add('amount', MoneyType::class, [
@@ -30,12 +27,11 @@ class TransferForm extends AbstractType
             ]);
     }
 
-    public function configureOptions(OptionsResolver $resolver): void
-    {
+    public function configureOptions(OptionsResolver $resolver): void {
         $resolver->setDefaults([
             'data_class' => Transaction::class,
-            'bank_accounts' => [], 
-            'beneficiaries' => [], 
+            'bank_accounts' => [],
+            'beneficiaries' => [],
             'user' => null,
         ]);
     }

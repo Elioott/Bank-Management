@@ -9,6 +9,7 @@ use App\Account\Form\AccountForm as BankAccountFormType;
 use App\Account\Repository\AccountRepository;
 use App\Account\Service\AccountService;
 use App\Transactions\Entity\Transaction;
+use App\Transactions\Repository\TransactionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -125,9 +126,9 @@ private function hasValidCurrentAccount(array $bankAccounts): bool
 
     #[Route('/{accountId}', name: 'account')]
     #[IsGranted('ROLE_CUSTOMER')]
-    public function showAccountTransactions(int $accountId ,  SessionInterface $session): Response
+    public function showAccountTransactions(int $accountId , SessionInterface $session, TransactionRepository $transactionRepository): Response
     {
-        $transactions = $this->accountService->getAccountTransactions($accountId);
+        $transactions = $transactionRepository->findByAccount($accountId);
 
         $session->set('bank_account_id', $accountId);
      
