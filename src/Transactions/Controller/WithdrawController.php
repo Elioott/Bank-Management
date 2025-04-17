@@ -8,7 +8,6 @@ use App\Transactions\Entity\Transaction;
 use App\Transactions\Enum\TransactionType;
 use App\Transactions\Form\WithdrawForm;
 use App\Transactions\Service\TransactionManager;
-use App\Transactions\Service\TransactionService;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;

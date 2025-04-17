@@ -10,7 +10,6 @@ use App\Beneficiary\Entity\Beneficiary;
 use App\Transactions\Entity\Transaction;
 use App\Transactions\Enum\TransactionType;
 use App\Transactions\Form\TransferForm;
-use App\Transactions\Service\TransactionService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
